@@ -391,9 +391,9 @@ L.control.layers(baseMaps).addTo(map);
     }
 
     function showCriteria() {
-  const selected = document.getElementById("habitatType").value;
-  const criteriaDiv = document.getElementById("criteriaOptions");
-  criteriaDiv.innerHTML = "";
+      const selected = document.getElementById("habitatType").value;
+      const criteriaDiv = document.getElementById("criteriaOptions");
+      criteriaDiv.innerHTML = "";
 
   if (habitatCriteria[selected]) {
     habitatCriteria[selected].forEach(item => {
@@ -488,7 +488,7 @@ L.control.layers(baseMaps).addTo(map);
         const surveyor = globalValues.SURVEYOR || "unknown";
         const site = globalValues.SITE || "site";
         const filename = `WOTU_${surveyor}_${site}_${date}_${time}_points.geojson`.replace(/\s+/g, '');
-        const url = `https://fraxinus-fielddata.s3.us-east-2.amazonaws.com/${filename}`;
+        const url = `https://fraxinus-fielddata.s3.us-east-2.amazonaws.com/WOTU/${filename}`;
 
         const response = await fetch(url, {
           method: "PUT",
