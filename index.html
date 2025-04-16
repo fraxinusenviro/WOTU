@@ -13,13 +13,18 @@
 
   <!-- Custom Styles -->
   <style>
-    html, body, #map {
+ html, body, #map {
   height: 100%;
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
   background-color: #1e1f24;
   color: #f0f0f0;
-  touch-action: manipulation; /* <- Prevent double-tap zoom */
+	touch-action: manipulation; /* <- Prevent double-tap zoom */
+}
+
+button {
+  font-size: 24px;
+  touch-action: manipulation;
 }
 
 .floating-btn {
@@ -46,7 +51,7 @@
 }
 
 #globalBtn { top: 10px; left: 130px; }
-#pointBtn  { bottom: 15%; left: 10px; }
+#pointBtn  { top: 15%; left: 10px; }
 #menuBtn   { top: 10px; left: 60px; }
 
 .modal {
@@ -60,7 +65,7 @@
   background: #f2f2f2;
   color: #222;
   border-radius: 12px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
   padding: 0;
   z-index: 2000;
 }
@@ -91,7 +96,7 @@
   color: #000;
   border: 1px solid #aaa;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 14px;
   box-sizing: border-box;
 }
 .modal input:focus,
@@ -257,24 +262,22 @@
   <div id="map"></div>
 
   <button id="globalBtn" class="floating-btn" onclick="showGlobalModal()">
-    <i class="fas fa-sliders" style="font-size: 2em;></i> Survey Global Values
+    <i class="fas fa-list" style="font-size: 2em;"></i> Global Values
   </button>
-	
   <button id="pointBtn" class="floating-btn" onclick="showHabitatModal()">
-    <i class="fas fa-location-dot" style="font-size: 2em; color: red;></i>
+    <i class="fas fa-location-dot" style="font-size: 2em; color: red;"></i>
   </button>
-	
   <button id="menuBtn" class="floating-btn" onclick="toggleDrawer()">
-    <i class="fas fa-gear" style="font-size: 2em;></i>
+    <i class="fas fa-gear" style="font-size: 2em;"></i>
   </button>
 
   <!-- Bottom Drawer -->
   <div id="bottomDrawer" class="bottom-drawer">
     <h3>Collected Points</h3>
     <div id="pointList"></div>
-    	<button onclick="syncToS3()"><i class="fas fa-cloud-upload-alt"></i> Sync to S3</button>
+    <button onclick="syncToS3()"><i class="fas fa-cloud-upload-alt"></i> Sync to S3</button>
 	<button onclick="exportToCSV()"><i class="fas fa-file-csv"></i> Export to CSV</button>
-	<button onclick="exportToGeoJSON()"><i class="fas fa-file-code"></i> Export to GeoJSON</button>
+<button onclick="exportToGeoJSON()"><i class="fas fa-file-code"></i> Export to GeoJSON</button>
     <hr />
     <div><b>Console Log</b></div>
     <div id="consoleLog"></div>
