@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wood Turtle Habitat Collector</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Custom Styles -->
+  <style>
+    html, body, #map {
+  height: 100%;
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #1e1f24;
+  color: #f0f0f0;
+  touch-action: manipulation; /* <- Prevent double-tap zoom */
+}
+
+.floating-btn {
+  position: absolute;
+  z-index: 1000;
+  background: #2c2e34;
+  border: none;
+  padding: 14px 18px;
+  font-size: 16px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f0f0f0;
+  transition: background 0.2s ease;
+}
+.floating-btn:hover {
+  background-color: #383a40;
+}
+.floating-btn i {
+  font-size: 16px;
+}
+
+#globalBtn { top: 10px; left: 130px; }
+#pointBtn  { bottom: 15%; left: 10px; }
+#menuBtn   { top: 10px; left: 60px; }
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 5%;
+  left: 5%;
+  width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+  background: #f2f2f2;
+  color: #222;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+  padding: 0;
+  z-index: 2000;
+}
+
+/* Modal header bar */
+.modal h2 {
+  background: #000;
+  color: #fff;
+  margin: 0;
+  padding: 14px 20px;
+  font-size: 18px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+/* Modal body fields */
+.modal label {
+  display: block;
+  margin: 16px 20px 4px;
+  color: #333;
+}
+.modal input,
+.modal select {
+  width: calc(100% - 40px);
+  margin: 0 20px 12px;
+  padding: 10px;
+  background: #fff;
+  color: #000;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+.modal input:focus,
+.modal select:focus {
+  outline: 2px solid #007BFF;
+  background: #fff;
+}
+
+/* Submit button inside modals */
+.modal .btn-row {
+  margin: 20px;
+  text-align: right;
+}.bottom-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 45%;
+  background: #292b30;
+  border-top: 2px solid #444;
+  overflow-y: auto;
+  z-index: 1500;
+  display: none;
+  padding: 16px;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 -3px 15px rgba(0,0,0,0.5);
+}
+.bottom-drawer h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #f0f0f0;
+}
+.drawer-item {
+  border-bottom: 1px solid #444;
+  padding: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.drawer-item button {
+  margin-left: 6px;
+  background: #3a3c42;
+  border: none;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #f0f0f0;
+}
+.drawer-item button:hover {
+  background-color: #4c4e55;
+}
+
+.btn-row {
+  margin-top: 20px;
+  text-align: right;
+}
+.btn-row button,
+#bottomDrawer button {
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  background: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-row button:hover,
+#bottomDrawer button:hover {
+  background: #0056b3;
+}
+
+#consoleLog {
+  font-size: 13px;
+  margin-top: 10px;
+  max-height: 100px;
+  overflow-y: auto;
+  border-top: 1px solid #555;
+  padding-top: 5px;
+  color: #66ff66;
+}
+#consoleLog div {
+  margin-bottom: 4px;
+  font-family: monospace;
+}
+
+#criteriaOptions label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 20px;
+  font-size: 15px;
+  line-height: 1.4;
+  white-space: normal;
+  width: auto;
+}
+#criteriaOptions input[type="checkbox"] {
+  margin: 0;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  margin: 6px 20px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #111;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.toggle input[type="checkbox"] {
+  appearance: none;
+  width: 44px;
+  height: 24px;
+  background: #ccc;
+  border-radius: 24px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  border: 1px solid #999;
+}
+
+.toggle input[type="checkbox"]::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 1.5px;
+  left: 1.5px;
+  transition: transform 0.3s ease, background 0.3s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.toggle input[type="checkbox"]:checked {
+  background: #007bff;
+  border-color: #007bff;
+}
+
+.toggle input[type="checkbox"]:checked::before {
+  transform: translateX(20px);
+  background: #fff;
+}  
+</style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <button id="globalBtn" class="floating-btn" onclick="showGlobalModal()">
+    <i class="fas fa-sliders" style="font-size: 2em;></i> Survey Global Values
+  </button>
+	
+  <button id="pointBtn" class="floating-btn" onclick="showHabitatModal()">
+    <i class="fas fa-location-dot" style="font-size: 2em; color: red;></i>
+  </button>
+	
+  <button id="menuBtn" class="floating-btn" onclick="toggleDrawer()">
+    <i class="fas fa-gear" style="font-size: 2em;></i>
+  </button>
+
+  <!-- Bottom Drawer -->
+  <div id="bottomDrawer" class="bottom-drawer">
+    <h3>Collected Points</h3>
+    <div id="pointList"></div>
+    	<button onclick="syncToS3()"><i class="fas fa-cloud-upload-alt"></i> Sync to S3</button>
+	<button onclick="exportToCSV()"><i class="fas fa-file-csv"></i> Export to CSV</button>
+	<button onclick="exportToGeoJSON()"><i class="fas fa-file-code"></i> Export to GeoJSON</button>
+    <hr />
+    <div><b>Console Log</b></div>
+    <div id="consoleLog"></div>
+  </div>
+
+  <!-- Global Values Modal -->
+  <div id="globalModal" class="modal">
+    <h2>Survey Metadata</h2>
+    <label>Surveyor: <input type="text" id="SURVEYOR" /></label>
+    <label>Survey Site: <input type="text" id="SITE" /></label>
+    <label>Date of Survey: <input type="date" id="DATE" /></label>
+    <label>Watercourse Name: <input type="text" id="WC_NAME" /></label>
+    <label>Weather: <input type="text" id="WEATHER" /></label>
+    <label>Water Temp (°C): <input type="number" step="0.1" id="T_WATER" /></label>
+    <label>Air Temp (°C): <input type="number" step="0.1" id="T_AIR" /></label>
+    <label>Ground Temp (°C): <input type="number" step="0.1" id="T_GROUND" /></label>
+    <div class="btn-row">
+      <button onclick="saveGlobalValues()"><i class="fas fa-check"></i> Save</button>
+    </div>
+  </div>
+
+  <!-- Habitat Modal -->
+  <div id="habitatModal" class="modal">
+    <h2>Select Habitat Type</h2>
+    <select id="habitatType" onchange="showCriteria()">
+      <option value="">-- Choose One --</option>
+      <option value="Basking">1. Basking Habitat</option>
+      <option value="Foraging">2. Foraging Habitat</option>
+      <option value="Nesting">3. Nesting Habitat</option>
+      <option value="Overwintering">4. Overwintering Habitat</option>
+    </select>
+    <div id="criteriaOptions" class="criteria-box"></div>
+	
+    <div class="btn-row">
+  		<button onclick="submitPoint()"><i class="fas fa-plus"></i> Submit</button>
+  		<button onclick="closeHabitatModal()"><i class="fas fa-xmark"></i> Cancel</button>
+	</div>
+  </div>
+
+  <!-- Leaflet + Script -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([45.0, -63.0], 9);
+
+	const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 20,
+  attribution: '© Esri'
+}).addTo(map);
+
+const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '© OpenStreetMap contributors'
+});
+
+const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+  maxZoom: 20,
+  attribution: '© Google)'
+});
+
+const openTopo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+  maxZoom: 17,
+  attribution: '© OpenTopoMap'
+});
+
+
+const baseMaps = {
+  "Esri World Imagery": esri,
+  "OpenStreetMap": osm,
+  "Google Hybrid": googleHybrid,
+  "OpenTopoMap": openTopo
+};
+
+L.control.layers(baseMaps).addTo(map);
+    
+	 let globalValues = {};
+    const collectedPoints = [];
+    const pointMarkers = [];
+    const uploadLogUrl = "https://fraxinus-fielddata.s3.us-east-2.amazonaws.com/uploads_log.json";
+
+    const habitatCriteria = {
+      Basking: ["Downed logs in water", "Exposed rocks near/in water", "Sunny open banks", "Low disturbance"],
+      Foraging: ["Floodplain meadow/wetland", "Alder thickets/shrubby edge", "Open trails or corridors", "Evidence of invertebrate/plant food"],
+      Nesting: ["Sandy/gravelly substrate", "Full sun exposure", "Proximity to water (<250 m)", "Disturbed ground"],
+      Overwintering: ["Flowing stream with oxygenated water", "Water depth 0.5–1.5 m", "Sandy/gravelly streambed", "Cover: undercut banks, roots, logs"]
+    };
+
+    function showGlobalModal() {
+      document.getElementById('globalModal').style.display = 'block';
+    }
+
+    function saveGlobalValues() {
+      globalValues = {
+        SURVEYOR: document.getElementById("SURVEYOR").value.trim(),
+        SITE: document.getElementById("SITE").value.trim(),
+        DATE: document.getElementById("DATE").value,
+        WC_NAME: document.getElementById("WC_NAME").value,
+        WEATHER: document.getElementById("WEATHER").value,
+        T_WATER: parseFloat(document.getElementById("T_WATER").value),
+        T_AIR: parseFloat(document.getElementById("T_AIR").value),
+        T_GROUND: parseFloat(document.getElementById("T_GROUND").value),
+      };
+      alert("Global values saved.");
+      log("Global values saved.");
+      document.getElementById('globalModal').style.display = 'none';
+    }
+
+    function showHabitatModal() {
+      document.getElementById("habitatType").value = "";
+      document.getElementById("criteriaOptions").innerHTML = "";
+      document.getElementById("habitatModal").style.display = "block";
+    }
+
+    function showCriteria() {
+  const selected = document.getElementById("habitatType").value;
+  const criteriaDiv = document.getElementById("criteriaOptions");
+  criteriaDiv.innerHTML = "";
+
+  if (habitatCriteria[selected]) {
+    habitatCriteria[selected].forEach(item => {
+      const id = "crit_" + item.replace(/\s+/g, "_");
+      const row = document.createElement("label");
+      row.className = "toggle";
+      row.innerHTML = `
+        <span>${item}</span>
+        <input type="checkbox" id="${id}" value="${item}" />
+      `;
+      criteriaDiv.appendChild(row);
+    });
+  }
+}
+
+    function submitPoint() {
+      const type = document.getElementById("habitatType").value;
+      const selectedCriteria = Array.from(document.querySelectorAll("#criteriaOptions input:checked")).map(cb => cb.value);
+      navigator.geolocation.getCurrentPosition(pos => {
+        const latlng = [pos.coords.latitude, pos.coords.longitude];
+        const point = {
+          ...globalValues,
+          timestamp: new Date().toISOString(),
+          habitat_type: type,
+          habitat_criteria: selectedCriteria,
+          lat: latlng[0],
+          lon: latlng[1]
+        };
+        collectedPoints.push(point);
+        const marker = L.circleMarker(latlng, { radius: 10, color: 'red', fillOpacity: 0.8 })
+          .addTo(map)
+          .bindPopup(`<b>${type}</b><br>${selectedCriteria.join(", ")}`);
+        pointMarkers.push(marker);
+        updatePointList();
+        document.getElementById("habitatModal").style.display = "none";
+        log(`Saved point: ${type} @ ${latlng[0].toFixed(4)}, ${latlng[1].toFixed(4)}`);
+      }, () => {
+        alert("Location access failed.");
+        log("⚠️ Location access failed.");
+      });
+    }
+
+    function updatePointList() {
+      const list = document.getElementById("pointList");
+      list.innerHTML = "";
+      collectedPoints.forEach((pt, i) => {
+        const row = document.createElement("div");
+        row.className = "drawer-item";
+        row.innerHTML = `
+          <div><b>${pt.habitat_type}</b> @ ${pt.lat.toFixed(4)}, ${pt.lon.toFixed(4)}</div>
+          <div>
+            <button onclick="zoomTo(${i})"><i class="fas fa-magnifying-glass"></i> Zoom</button>
+            <button onclick="deletePoint(${i})"><i class="fas fa-trash"></i> Delete</button>
+          </div>`;
+        list.appendChild(row);
+      });
+    }
+
+    function zoomTo(index) {
+      const pt = collectedPoints[index];
+      map.setView([pt.lat, pt.lon], 16);
+      log(`Zoomed to point ${index + 1}`);
+    }
+
+    function deletePoint(index) {
+      collectedPoints.splice(index, 1);
+      map.removeLayer(pointMarkers[index]);
+      pointMarkers.splice(index, 1);
+      updatePointList();
+      log(`Deleted point ${index + 1}`);
+    }
+
+    function toggleDrawer() {
+      const drawer = document.getElementById("bottomDrawer");
+      drawer.style.display = drawer.style.display === "block" ? "none" : "block";
+    }
+
+    async function syncToS3() {
+      try {
+        if (collectedPoints.length === 0) return alert("No points to upload.");
+        const geojson = {
+          type: "FeatureCollection",
+          features: collectedPoints.map(p => ({
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [p.lon, p.lat] },
+            properties: { ...p }
+          }))
+        };
+        const now = new Date();
+        const date = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+        const time = `${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+        const surveyor = globalValues.SURVEYOR || "unknown";
+        const site = globalValues.SITE || "site";
+        const filename = `WOTU_${surveyor}_${site}_${date}_${time}_points.geojson`.replace(/\s+/g, '');
+        const url = `https://fraxinus-fielddata.s3.us-east-2.amazonaws.com/${filename}`;
+
+        const response = await fetch(url, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(geojson)
+        });
+
+        if (!response.ok) throw new Error("Upload failed.");
+        log(`✅ S3 upload complete: ${filename}`);
+
+        const logEntry = {
+          filename,
+          url,
+          surveyor,
+          site,
+          timestamp: new Date().toISOString()
+        };
+
+        try {
+          const res = await fetch(uploadLogUrl);
+          const currentLog = res.ok ? await res.json() : [];
+          currentLog.push(logEntry);
+          await fetch(uploadLogUrl, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(currentLog, null, 2)
+          });
+          log("📝 uploads_log.json updated.");
+        } catch (e) {
+          log("⚠️ Failed to update uploads_log.json: " + e.message);
+        }
+      } catch (err) {
+        log("❌ Upload error: " + err.message);
+      }
+    }
+
+	function closeHabitatModal() {
+  document.getElementById("habitatModal").style.display = "none";
+  log("❌ Habitat modal cancelled.");
+}
+	
+	function exportToCSV() {
+  if (collectedPoints.length === 0) return alert("No data to export.");
+
+  const header = Object.keys(collectedPoints[0]).filter(k => k !== "lat" && k !== "lon");
+  const rows = collectedPoints.map(pt =>
+    [...header.map(k => `"${pt[k] ?? ''}"`), pt.lat, pt.lon].join(",")
+  );
+
+  const csvContent = [
+    [...header, "Latitude", "Longitude"].join(","),
+    ...rows
+  ].join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "wood_turtle_data.csv";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  log("📄 Exported to CSV.");
+}
+
+function exportToGeoJSON() {
+  if (collectedPoints.length === 0) return alert("No data to export.");
+
+  const geojson = {
+    type: "FeatureCollection",
+    features: collectedPoints.map(pt => ({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [pt.lon, pt.lat] },
+      properties: { ...pt }
+    }))
+  };
+
+  const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: "application/geo+json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "wood_turtle_data.geojson";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  log("🗺️ Exported to GeoJSON.");
+}
+
+    function log(message) {
+      const logDiv = document.getElementById("consoleLog");
+      const time = new Date().toLocaleTimeString();
+      const entry = document.createElement("div");
+      entry.textContent = `${time} — ${message}`;
+      logDiv.prepend(entry);
+    }
+  </script>
+</body>
+</html>
