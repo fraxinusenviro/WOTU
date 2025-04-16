@@ -355,7 +355,7 @@ L.control.layers(baseMaps).addTo(map);
 	 let globalValues = {};
     const collectedPoints = [];
     const pointMarkers = [];
-    const uploadLogUrl = "https://fraxinus-fielddata.s3.us-east-2.amazonaws.com/uploads_log.json";
+    const uploadLogUrl = "https://fraxinus-fielddata.s3.us-east-2.amazonaws.com/WOTU/WOTU_uploads_log.json";
 
     const habitatCriteria = {
       Basking: ["Downed logs in water", "Exposed rocks near/in water", "Sunny open banks", "Low disturbance"],
@@ -516,7 +516,7 @@ L.control.layers(baseMaps).addTo(map);
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(currentLog, null, 2)
           });
-          log("📝 uploads_log.json updated.");
+          log("📝 WOTU_uploads_log.json updated.");
         } catch (e) {
           log("⚠️ Failed to update uploads_log.json: " + e.message);
         }
