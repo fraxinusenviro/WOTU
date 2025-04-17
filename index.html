@@ -31,7 +31,7 @@ button {
 .floating-btn {
   position: absolute;
   z-index: 1000;
-  background: #2c2e34;
+  background: #afb0b6;
   border: none;
   padding: 14px 18px;
   font-size: 16px;
@@ -451,15 +451,9 @@ L.control.layers(baseMaps).addTo(map);
     }
 
     function showCriteria() {
-<<<<<<< HEAD
       const selected = document.getElementById("obsType").value;
       const criteriaDiv = document.getElementById("criteriaOptions");
       criteriaDiv.innerHTML = "";
-=======
-  const selected = document.getElementById("habitatType").value;
-  const criteriaDiv = document.getElementById("criteriaOptions");
-  criteriaDiv.innerHTML = "";
->>>>>>> 7686b15a65cd8225e769bd8566a8a13ff84defcb
 
   if (habitatCriteria[selected]) {
     habitatCriteria[selected].forEach(item => {
@@ -652,10 +646,7 @@ function exportToGeoJSON() {
       entry.textContent = `${time} — ${message}`;
       logDiv.prepend(entry);
     }
-<<<<<<< HEAD
     
-=======
->>>>>>> 7686b15a65cd8225e769bd8566a8a13ff84defcb
 
   </script>
 
