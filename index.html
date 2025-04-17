@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  
   <meta charset="UTF-8" />
   <title>Wood Turtle Habitat Collector</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -264,7 +265,7 @@ button {
   <button id="globalBtn" class="floating-btn" onclick="showGlobalModal()">
     <i class="fas fa-list" style="font-size: 2em;"></i> Global Values
   </button>
-  <button id="pointBtn" class="floating-btn" onclick="showHabitatModal()">
+  <button id="pointBtn" class="floating-btn" onclick="showObsModal()">
     <i class="fas fa-location-dot" style="font-size: 2em; color: red;"></i>
   </button>
   <button id="menuBtn" class="floating-btn" onclick="toggleDrawer()">
@@ -289,6 +290,7 @@ button {
     <label>Surveyor: <input type="text" id="SURVEYOR" /></label>
     <label>Survey Site: <input type="text" id="SITE" /></label>
     <label>Date of Survey: <input type="date" id="DATE" /></label>
+    <label>Transect ID: <input type="text" id="TRANSECT_ID" /></label>
     <label>Watercourse Name: <input type="text" id="WC_NAME" /></label>
     <label>Weather: <input type="text" id="WEATHER" /></label>
     <label>Water Temp (°C): <input type="number" step="0.1" id="T_WATER" /></label>
@@ -300,20 +302,21 @@ button {
   </div>
 
   <!-- Habitat Modal -->
-  <div id="habitatModal" class="modal">
-    <h2>Select Habitat Type</h2>
-    <select id="habitatType" onchange="showCriteria()">
+  <div id="obsModal" class="modal">
+    <h2>Select Observation Type</h2>
+    <select id="obsType" onchange="showCriteria()">
       <option value="">-- Choose One --</option>
       <option value="Basking">1. Basking Habitat</option>
       <option value="Foraging">2. Foraging Habitat</option>
       <option value="Nesting">3. Nesting Habitat</option>
       <option value="Overwintering">4. Overwintering Habitat</option>
+      <option value="Turtle Observation">5. Turtle Observation</option>
     </select>
     <div id="criteriaOptions" class="criteria-box"></div>
 	
     <div class="btn-row">
   		<button onclick="submitPoint()"><i class="fas fa-plus"></i> Submit</button>
-  		<button onclick="closeHabitatModal()"><i class="fas fa-xmark"></i> Cancel</button>
+  		<button onclick="closeObsModal()"><i class="fas fa-xmark"></i> Cancel</button>
 	</div>
   </div>
 
@@ -373,6 +376,7 @@ L.control.layers(baseMaps).addTo(map);
         SURVEYOR: document.getElementById("SURVEYOR").value.trim(),
         SITE: document.getElementById("SITE").value.trim(),
         DATE: document.getElementById("DATE").value,
+        TRANSECT_ID: document.getElementById("TRANSECT_ID").value,
         WC_NAME: document.getElementById("WC_NAME").value,
         WEATHER: document.getElementById("WEATHER").value,
         T_WATER: parseFloat(document.getElementById("T_WATER").value),
@@ -384,14 +388,14 @@ L.control.layers(baseMaps).addTo(map);
       document.getElementById('globalModal').style.display = 'none';
     }
 
-    function showHabitatModal() {
-      document.getElementById("habitatType").value = "";
+    function showObsModal() {
+      document.getElementById("obsType").value = "";
       document.getElementById("criteriaOptions").innerHTML = "";
-      document.getElementById("habitatModal").style.display = "block";
+      document.getElementById("obsModal").style.display = "block";
     }
 
     function showCriteria() {
-      const selected = document.getElementById("habitatType").value;
+      const selected = document.getElementById("obsType").value;
       const criteriaDiv = document.getElementById("criteriaOptions");
       criteriaDiv.innerHTML = "";
 
@@ -410,7 +414,7 @@ L.control.layers(baseMaps).addTo(map);
 }
 
     function submitPoint() {
-      const type = document.getElementById("habitatType").value;
+      const type = document.getElementById("obsType").value;
       const selectedCriteria = Array.from(document.querySelectorAll("#criteriaOptions input:checked")).map(cb => cb.value);
       navigator.geolocation.getCurrentPosition(pos => {
         const latlng = [pos.coords.latitude, pos.coords.longitude];
@@ -428,7 +432,7 @@ L.control.layers(baseMaps).addTo(map);
           .bindPopup(`<b>${type}</b><br>${selectedCriteria.join(", ")}`);
         pointMarkers.push(marker);
         updatePointList();
-        document.getElementById("habitatModal").style.display = "none";
+        document.getElementById("obsModal").style.display = "none";
         log(`Saved point: ${type} @ ${latlng[0].toFixed(4)}, ${latlng[1].toFixed(4)}`);
       }, () => {
         alert("Location access failed.");
@@ -525,8 +529,8 @@ L.control.layers(baseMaps).addTo(map);
       }
     }
 
-	function closeHabitatModal() {
-  document.getElementById("habitatModal").style.display = "none";
+	function closeObsModal() {
+  document.getElementById("obsModal").style.display = "none";
   log("❌ Habitat modal cancelled.");
 }
 	
@@ -586,6 +590,8 @@ function exportToGeoJSON() {
       entry.textContent = `${time} — ${message}`;
       logDiv.prepend(entry);
     }
+    
+
   </script>
 </body>
 </html>
