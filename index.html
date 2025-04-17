@@ -329,7 +329,7 @@ button {
     <i class="fas fa-list" style="font-size: 2em;"></i> Global Values
   </button>
   <button id="pointBtn" class="floating-btn" onclick="showObsModal()">
-    <i class="fas fa-location-dot" style="font-size: 2em; color: red;"></i>
+    <i class="fas fa-location-dot" style="font-size: 2em; color: rgb(245, 236, 236);"></i>
   </button>
   <button id="menuBtn" class="floating-btn" onclick="toggleDrawer()">
     <i class="fas fa-gear" style="font-size: 2em;"></i>
@@ -686,6 +686,49 @@ function exportToGeoJSON() {
       document.getElementById("passwordModal").style.display = "none";
     }
   };
+
+  let userLocationCircle;
+
+if (navigator.geolocation) {
+  navigator.geolocation.watchPosition(
+    position => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      const accuracy = position.coords.accuracy;
+
+      // If already exists, update it
+      if (userLocationCircle) {
+        userLocationCircle.setLatLng([lat, lon]);
+        userLocationCircle.setRadius(accuracy);
+      } else {
+        userLocationCircle = L.circle([lat, lon], {
+          radius: accuracy,
+          color: null,
+          fillColor: 'rgba(0, 122, 255, 0.3)', // iOS blue style
+          fillOpacity: 1,
+          weight: 0
+        }).addTo(map);
+      }
+
+      // Optionally center map on first load
+      if (!map._userLocated) {
+        map.setView([lat, lon], 16);
+        map._userLocated = true;
+      }
+    },
+    error => {
+      console.error("Geolocation failed: ", error);
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 10000,
+      timeout: 10000
+    }
+  );
+} else {
+  alert("Geolocation is not supported by your browser.");
+}
+
 </script>
 
 </body>
