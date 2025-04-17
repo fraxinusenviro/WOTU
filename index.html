@@ -386,7 +386,10 @@ button {
   <!-- Leaflet + Script -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    const map = L.map('map').setView([45.0, -63.0], 9);
+  let userAccuracyCircle = null;
+  let userLocationDot = null;
+
+  const map = L.map('map').setView([45.0, -63.0], 9);
 
 	const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
   maxZoom: 20,
@@ -699,31 +702,30 @@ if (navigator.geolocation) {
       // If already exists, update it
             let userAccuracyCircle, userLocationDot;
 
-      if (userAccuracyCircle && userLocationDot) {
-        // Update both position and radius
-        userAccuracyCircle.setLatLng([lat, lon]);
-        userAccuracyCircle.setRadius(accuracy);
+            if (userAccuracyCircle && userLocationDot) {
+              userAccuracyCircle.setLatLng([lat, lon]);
+              userAccuracyCircle.setRadius(accuracy);
+              userLocationDot.setLatLng([lat, lon]);
+            } else {
+              // Accuracy circle (real-world radius)
+              userAccuracyCircle = L.circle([lat, lon], {
+                radius: accuracy,
+                color: null,
+                fillColor: 'rgba(0, 122, 255, 0.3)',
+                fillOpacity: 1,
+                weight: 0
+              }).addTo(map);
 
-        userLocationDot.setLatLng([lat, lon]);
-      } else {
-        // Real-world accuracy circle (in meters)
-        userAccuracyCircle = L.circle([lat, lon], {
-          radius: accuracy,
-          color: null,
-          fillColor: 'rgba(0, 122, 255, 0.3)', // translucent blue
-          fillOpacity: 1,
-          weight: 0
-        }).addTo(map);
+              // Fixed-size dot (screen-visible)
+              userLocationDot = L.circleMarker([lat, lon], {
+                radius: 6,
+                color: '#ffffff',
+                fillColor: '#007bff',
+                fillOpacity: 1,
+                weight: 2
+              }).addTo(map);
+            }
 
-        // Fixed-size circle (always visible, in pixels)
-        userLocationDot = L.circleMarker([lat, lon], {
-          radius: 6,
-          color: '#ffffff',
-          fillColor: '#007bff',
-          fillOpacity: 1,
-          weight: 2
-        }).addTo(map);
-      }
 
 
       // Optionally center map on first load
