@@ -699,6 +699,16 @@ if (navigator.geolocation) {
       const lon = position.coords.longitude;
       const accuracy = position.coords.accuracy;
 
+      // Optional cleanup (to prevent duplication)
+      if (userAccuracyCircle) {
+        map.removeLayer(userAccuracyCircle);
+        userAccuracyCircle = null;
+      }
+      if (userLocationDot) {
+        map.removeLayer(userLocationDot);
+        userLocationDot = null;
+      }
+
       // If already exists, update it
             let userAccuracyCircle, userLocationDot;
 
