@@ -256,6 +256,62 @@ button {
   transform: translateX(20px);
   background: #fff;
 }  
+
+#passwordModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-box {
+  background: #1e1f24;
+  color: #fff;
+  padding: 24px 32px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  text-align: center;
+  width: 90%;
+  max-width: 360px;
+}
+
+.password-box input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 6px;
+}
+
+.password-box button {
+  margin-top: 16px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #66FF66;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.password-box .logo {
+  width: 100%;           /* fills width of modal */
+  max-width: 100%;       /* prevents overflow */
+  height: auto;          /* preserves aspect ratio */
+  margin-bottom: 16px;
+  display: block;
+  object-fit: contain;   /* ensures clean scaling */
+  border-radius: 8px;    /* optional: soften edges */
+}
+
+#passwordError {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
 </style>
 </head>
 <body>
@@ -355,7 +411,7 @@ L.control.layers(baseMaps).addTo(map);
 	 let globalValues = {};
     const collectedPoints = [];
     const pointMarkers = [];
-    const uploadLogUrl = "https://fraxinus-fielddata.s3.us-east-2.amazonaws.com/WOTU/WOTU_uploads_log.json";
+    const uploadLogUrl = "https://fraxinus-fielddata.s3.us-east-2.amazonaws.com/uploads_log.json";
 
     const habitatCriteria = {
       Basking: ["Downed logs in water", "Exposed rocks near/in water", "Sunny open banks", "Low disturbance"],
@@ -391,9 +447,9 @@ L.control.layers(baseMaps).addTo(map);
     }
 
     function showCriteria() {
-      const selected = document.getElementById("habitatType").value;
-      const criteriaDiv = document.getElementById("criteriaOptions");
-      criteriaDiv.innerHTML = "";
+  const selected = document.getElementById("habitatType").value;
+  const criteriaDiv = document.getElementById("criteriaOptions");
+  criteriaDiv.innerHTML = "";
 
   if (habitatCriteria[selected]) {
     habitatCriteria[selected].forEach(item => {
@@ -488,7 +544,7 @@ L.control.layers(baseMaps).addTo(map);
         const surveyor = globalValues.SURVEYOR || "unknown";
         const site = globalValues.SITE || "site";
         const filename = `WOTU_${surveyor}_${site}_${date}_${time}_points.geojson`.replace(/\s+/g, '');
-        const url = `https://fraxinus-fielddata.s3.us-east-2.amazonaws.com/WOTU/${filename}`;
+        const url = `https://fraxinus-fielddata.s3.us-east-2.amazonaws.com/${filename}`;
 
         const response = await fetch(url, {
           method: "PUT",
@@ -516,7 +572,7 @@ L.control.layers(baseMaps).addTo(map);
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(currentLog, null, 2)
           });
-          log("📝 WOTU_uploads_log.json updated.");
+          log("📝 uploads_log.json updated.");
         } catch (e) {
           log("⚠️ Failed to update uploads_log.json: " + e.message);
         }
@@ -586,6 +642,39 @@ function exportToGeoJSON() {
       entry.textContent = `${time} — ${message}`;
       logDiv.prepend(entry);
     }
+
   </script>
+
+<!-- Password Overlay -->
+<div id="passwordModal">
+  <div class="password-box">
+    <img src="logo.PNG" alt="Logo" class="logo" />
+    <h2>Wood Turtle Data Collector</h2>
+    <input type="password" id="passwordField" placeholder="Enter password" />
+    <button onclick="checkPassword()">Unlock</button>
+    <p id="passwordError"></p>
+  </div>
+</div>
+<script>
+  const unlockKey = "app_unlocked";
+  const correctPassword = "turtles2025"; // change as needed
+
+  function checkPassword() {
+    const input = document.getElementById("passwordField").value.trim();
+    if (input === correctPassword) {
+      sessionStorage.setItem(unlockKey, "true");
+      document.getElementById("passwordModal").style.display = "none";
+    } else {
+      document.getElementById("passwordError").textContent = "Incorrect password.";
+    }
+  }
+
+  window.onload = () => {
+    if (sessionStorage.getItem(unlockKey)) {
+      document.getElementById("passwordModal").style.display = "none";
+    }
+  };
+</script>
+
 </body>
 </html>
