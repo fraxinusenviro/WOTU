@@ -702,39 +702,28 @@ if (navigator.geolocation) {
       // Optional cleanup (to prevent duplication)
       if (userAccuracyCircle) {
         map.removeLayer(userAccuracyCircle);
-        userAccuracyCircle = null;
       }
       if (userLocationDot) {
         map.removeLayer(userLocationDot);
-        userLocationDot = null;
       }
 
-      // If already exists, update it
-            let userAccuracyCircle, userLocationDot;
+      // 🔵 Real-world accuracy circle
+    userAccuracyCircle = L.circle([lat, lon], {
+      radius: accuracy,
+      color: null,
+      fillColor: 'rgba(0, 122, 255, 0.3)',
+      fillOpacity: 1,
+      weight: 0
+    }).addTo(map);
 
-            if (userAccuracyCircle && userLocationDot) {
-              userAccuracyCircle.setLatLng([lat, lon]);
-              userAccuracyCircle.setRadius(accuracy);
-              userLocationDot.setLatLng([lat, lon]);
-            } else {
-              // Accuracy circle (real-world radius)
-              userAccuracyCircle = L.circle([lat, lon], {
-                radius: accuracy,
-                color: null,
-                fillColor: 'rgba(0, 122, 255, 0.3)',
-                fillOpacity: 1,
-                weight: 0
-              }).addTo(map);
-
-              // Fixed-size dot (screen-visible)
-              userLocationDot = L.circleMarker([lat, lon], {
-                radius: 6,
-                color: '#ffffff',
-                fillColor: '#007bff',
-                fillOpacity: 1,
-                weight: 2
-              }).addTo(map);
-            }
+    // ⚪ Fixed-size dot
+    userLocationDot = L.circleMarker([lat, lon], {
+      radius: 6,
+      color: '#ffffff',
+      fillColor: '#007bff',
+      fillOpacity: 1,
+      weight: 2
+    }).addTo(map);
 
 
 
