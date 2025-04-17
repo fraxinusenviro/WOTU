@@ -690,7 +690,8 @@ function exportToGeoJSON() {
     }
   };
 
-  let userLocationCircle;
+//let userAccuracyCircle = null;
+//let userLocationDot = null;
 
 if (navigator.geolocation) {
   navigator.geolocation.watchPosition(
@@ -699,42 +700,36 @@ if (navigator.geolocation) {
       const lon = position.coords.longitude;
       const accuracy = position.coords.accuracy;
 
-      // Optional cleanup (to prevent duplication)
+      // Cleanup existing layers if they exist
       if (userAccuracyCircle) {
         map.removeLayer(userAccuracyCircle);
+        userAccuracyCircle = null;
       }
       if (userLocationDot) {
         map.removeLayer(userLocationDot);
+        userLocationDot = null;
       }
 
-      // 🔵 Real-world accuracy circle
-    userAccuracyCircle = L.circle([lat, lon], {
-      radius: accuracy,
-      color: null,
-      fillColor: 'rgba(0, 122, 255, 0.3)',
-      fillOpacity: 1,
-      weight: 0
-    }).addTo(map);
+      // Create updated accuracy circle
+      userAccuracyCircle = L.circle([lat, lon], {
+        radius: accuracy,
+        color: null,
+        fillColor: 'rgba(0, 122, 255, 0.3)',
+        fillOpacity: 1,
+        weight: 0
+      }).addTo(map);
 
-    // ⚪ Fixed-size dot
-    userLocationDot = L.circleMarker([lat, lon], {
-      radius: 6,
-      color: '#ffffff',
-      fillColor: '#007bff',
-      fillOpacity: 1,
-      weight: 2
-    }).addTo(map);
-
-
-
-      // Optionally center map on first load
-      if (!map._userLocated) {
-        map.setView([lat, lon], 18);
-        map._userLocated = true;
-      }
+      // Create updated fixed-size marker
+      userLocationDot = L.circleMarker([lat, lon], {
+        radius: 6,
+        color: '#ffffff',
+        fillColor: '#007bff',
+        fillOpacity: 1,
+        weight: 2
+      }).addTo(map);
     },
     error => {
-      console.error("Geolocation failed: ", error);
+      console.error("Geolocation error:", error);
     },
     {
       enableHighAccuracy: true,
@@ -745,6 +740,7 @@ if (navigator.geolocation) {
 } else {
   alert("Geolocation is not supported by your browser.");
 }
+
 
 </script>
 
