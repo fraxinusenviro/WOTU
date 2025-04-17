@@ -512,8 +512,8 @@ L.control.layers(baseMaps).addTo(map);
         row.innerHTML = `
           <div><b>${pt.habitat_type}</b> @ ${pt.lat.toFixed(4)}, ${pt.lon.toFixed(4)}</div>
           <div>
-            <button onclick="zoomTo(${i})"><i class="fas fa-magnifying-glass"></i> Zoom</button>
-            <button onclick="deletePoint(${i})"><i class="fas fa-trash"></i> Delete</button>
+            <button onclick="zoomTo(${i})"><i class="fas fa-magnifying-glass"></i></button>
+            <button onclick="deletePoint(${i})"><i class="fas fa-trash"></i></button>
           </div>`;
         list.appendChild(row);
       });
