@@ -697,22 +697,38 @@ if (navigator.geolocation) {
       const accuracy = position.coords.accuracy;
 
       // If already exists, update it
-      if (userLocationCircle) {
-        userLocationCircle.setLatLng([lat, lon]);
-        userLocationCircle.setRadius(accuracy);
+            let userAccuracyCircle, userLocationDot;
+
+      if (userAccuracyCircle && userLocationDot) {
+        // Update both position and radius
+        userAccuracyCircle.setLatLng([lat, lon]);
+        userAccuracyCircle.setRadius(accuracy);
+
+        userLocationDot.setLatLng([lat, lon]);
       } else {
-        userLocationCircle = L.circle([lat, lon], {
+        // Real-world accuracy circle (in meters)
+        userAccuracyCircle = L.circle([lat, lon], {
           radius: accuracy,
           color: null,
-          fillColor: 'rgba(0, 122, 255, 0.7)', // iOS blue style
+          fillColor: 'rgba(0, 122, 255, 0.3)', // translucent blue
+          fillOpacity: 1,
+          weight: 0
+        }).addTo(map);
+
+        // Fixed-size circle (always visible, in pixels)
+        userLocationDot = L.circleMarker([lat, lon], {
+          radius: 6,
+          color: '#ffffff',
+          fillColor: '#007bff',
           fillOpacity: 1,
           weight: 2
         }).addTo(map);
       }
 
+
       // Optionally center map on first load
       if (!map._userLocated) {
-        map.setView([lat, lon], 16);
+        map.setView([lat, lon], 20);
         map._userLocated = true;
       }
     },
